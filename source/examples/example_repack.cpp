@@ -510,10 +510,11 @@ struct ModelVertex
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2) {
-	    printf("Usage: %s input_file.obj\n", argv[0]);
+	if (argc < 3) {
+	    printf("Usage: %s input_file.obj output_prefix\n", argv[0]);
 	    return EXIT_FAILURE;
 	}
+	const char *outputPrefix = argv[2];
 	// Load model file.
 	printf("Loading '%s'...\n", argv[1]);
 	objz_setIndexFormat(OBJZ_INDEX_FORMAT_U32);
@@ -604,6 +605,7 @@ int main(int argc, char *argv[])
 	packOptions.padding = 1;
 	packOptions.texelsPerUnit = 1.0f;
         packOptions.rotateCharts = true;
+        packOptions.bruteForce = true; // Prioritize quality over runtime
 	xatlas::PackCharts(atlas, packOptions);
 	printf("Copying texture data into atlas\n");
 	// Create a texture for the atlas.
@@ -776,16 +778,20 @@ int main(int argc, char *argv[])
 		}
 	}
 	// Write the atlas texture.
-	const char *atlasFilename = "example_repack_output.tga";
+	char atlasFilename[1024];
+	snprintf(atlasFilename, sizeof(atlasFilename),
+	         "%s.jpg", outputPrefix);
 	printf("Writing '%s'...\n", atlasFilename);
-	stbi_write_tga(atlasFilename, atlas->width, atlas->height, 4, atlasTexture.data());
+	stbi_write_jpg(atlasFilename, atlas->width, atlas->height, 4, atlasTexture.data(), 90);
 	// Write the model.
-	const char *modelFilename = "example_repack_output.obj";
+	char modelFilename[1024];
+	snprintf(modelFilename, sizeof(modelFilename),
+	         "%s.obj", outputPrefix);
 	printf("Writing '%s'...\n", modelFilename);
 	FILE *file;
 	FOPEN(file, modelFilename, "w");
 	if (file) {
-		fprintf(file, "mtllib example_repack_output.mtl\n");
+		fprintf(file, "mtllib %s.mtl\n", outputPrefix);
 		uint32_t firstVertex = 0;
 		for (uint32_t i = 0; i < atlas->meshCount; i++) {
 			const xatlas::Mesh &mesh = atlas->meshes[i];
@@ -811,7 +817,9 @@ int main(int argc, char *argv[])
 		fclose(file);
 	}
 	// Write the model.
-	const char *materialFilename = "example_repack_output.mtl";
+	char materialFilename[1024];
+        snprintf(materialFilename, sizeof(materialFilename),
+	         "%s.mtl", outputPrefix);
 	printf("Writing '%s'...\n", materialFilename);
 	FOPEN(file, materialFilename, "w");
 	if (file) {
