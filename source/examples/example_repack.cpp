@@ -30,7 +30,7 @@ Uses AddUvMesh and PackCharts to repack existing UVs into a single atlas. Textur
 #include <stb_image.h>
 #include <stb_image_write.h>
 #include <objzero/objzero.h>
-#include "../xatlas.h"
+#include <xatlas.h>
 
 #ifdef _MSC_VER
 #define FOPEN(_file, _filename, _mode) { if (fopen_s(&_file, _filename, _mode) != 0) _file = NULL; }
@@ -589,8 +589,7 @@ int main(int argc, char *argv[])
 		meshDecl.indexFormat = xatlas::IndexFormat::UInt32;
 		meshDecl.indexOffset = -(int32_t)object.firstVertex;
 		meshDecl.faceMaterialData = faceMaterials.data();
-		meshDecl.rotateCharts = false;
-		xatlas::AddMeshError::Enum error = xatlas::AddUvMesh(atlas, meshDecl);
+		xatlas::AddMeshError error = xatlas::AddUvMesh(atlas, meshDecl);
 		if (error != xatlas::AddMeshError::Success) {
 			xatlas::Destroy(atlas);
 			printf("Error adding mesh %d: %s\n", i, xatlas::StringForEnum(error));
@@ -601,6 +600,7 @@ int main(int argc, char *argv[])
 	packOptions.createImage = true;
 	packOptions.padding = 1;
 	packOptions.texelsPerUnit = 1.0f;
+        packOptions.rotateCharts = true;
 	xatlas::PackCharts(atlas, packOptions);
 	printf("Copying texture data into atlas\n");
 	// Create a texture for the atlas.
