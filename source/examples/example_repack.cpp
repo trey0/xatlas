@@ -534,6 +534,9 @@ int main(int argc, char *argv[])
 	if (lastSlash) {
 		lastSlash++;
 		*lastSlash = 0;
+	} else {
+		// special case for when filename contains no slash (is in cwd)
+		STRCPY(basePath, sizeof(basePath), "./");
 	}
 	printf("Base path is '%s'\n", basePath);
 	std::vector<uint32_t> textures;
@@ -596,8 +599,8 @@ int main(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 	}
+	xatlas::ComputeCharts(atlas);
 	xatlas::PackOptions packOptions;
-	packOptions.createImage = true;
 	packOptions.padding = 1;
 	packOptions.texelsPerUnit = 1.0f;
         packOptions.rotateCharts = true;
