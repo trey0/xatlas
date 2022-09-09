@@ -234,7 +234,7 @@ project "example_repack"
 	sanitizer()
 	files { path.join(EXAMPLES_DIR, "example_repack.cpp") }
 	includedirs { XATLAS_DIR, THIRDPARTY_DIR }
-	links { "stb_image", "stb_image_write", "objzero", "xatlas" }
+	links { "stb_image", "stb_image_write", "tiny_obj_loader", "objzero", "xatlas_static" }
 	filter "action:vs*"
 		files "source/xatlas.natvis"
 	filter "system:linux"
