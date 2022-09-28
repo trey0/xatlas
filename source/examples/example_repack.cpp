@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
 	packOptions.padding = 1;
 	packOptions.texelsPerUnit = 1.0f;
         packOptions.rotateCharts = true;
-        packOptions.bruteForce = true; // Prioritize quality over runtime
+        packOptions.bruteForce = false;
 	xatlas::PackCharts(atlas, packOptions);
 	printf("Copying texture data into atlas\n");
 	// Create a texture for the atlas.
@@ -780,9 +780,10 @@ int main(int argc, char *argv[])
 	// Write the atlas texture.
 	char atlasFilename[1024];
 	snprintf(atlasFilename, sizeof(atlasFilename),
-	         "%s.jpg", outputPrefix);
+	         "%s.png", outputPrefix);
 	printf("Writing '%s'...\n", atlasFilename);
-	stbi_write_jpg(atlasFilename, atlas->width, atlas->height, 4, atlasTexture.data(), 90);
+	stbi_write_png(atlasFilename, atlas->width, atlas->height, 4, atlasTexture.data(),
+                       atlas->width * 4);
 	// Write the model.
 	char modelFilename[1024];
 	snprintf(modelFilename, sizeof(modelFilename),
@@ -802,9 +803,9 @@ int main(int argc, char *argv[])
 				fprintf(file, "vn %g %g %g\n", sourceVertex.normal.x, sourceVertex.normal.y, sourceVertex.normal.z);
 				fprintf(file, "vt %g %g\n", vertex.uv[0] / atlas->width, 1.0f - vertex.uv[1] / atlas->height);
 			}
-			fprintf(file, "o mesh%03u\n", i);
+			// fprintf(file, "o mesh%03u\n", i);
 			fprintf(file, "usemtl repack_atlas\n");
-			fprintf(file, "s off\n");
+			// fprintf(file, "s off\n");
 			for (uint32_t f = 0; f < mesh.indexCount; f += 3) {
 				fprintf(file, "f ");
 				for (uint32_t j = 0; j < 3; j++) {
